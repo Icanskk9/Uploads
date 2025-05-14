@@ -54,7 +54,7 @@ export default function UploadPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-pink-50 px-4">
       <div className="bg-white p-8 rounded-3xl shadow-xl w-full max-w-xl text-center">
-        <h1 className="text-2xl font-bold text-gray-700 mb-6">Upload Tugas </h1>
+        <h1 className="text-2xl font-bold text-gray-700 mb-6">UPLOAD FILE TUGAS </h1>
 
         <div
           {...getRootProps()}
