@@ -1,97 +1,73 @@
 'use client'
 
 import { useState } from 'react'
-import { supabase } from '@/lib/supabase'
-import { CloudUpload } from 'lucide-react'
+import { createBrowserClient } from '@supabase/ssr'
+import { UploadCloud } from 'lucide-react'
+
+const supabase = createBrowserClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 
 export default function UploadPage() {
-  const [file, setFile] = useState<File | null>(null)
-  const [dragging, setDragging] = useState(false)
   const [uploading, setUploading] = useState(false)
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0])
-    }
-  }
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault()
-    setDragging(false)
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setFile(e.dataTransfer.files[0])
-    }
-  }
+  const [file, setFile] = useState<File | null>(null)
+  const [url, setUrl] = useState<string | null>(null)
 
   const handleUpload = async () => {
     if (!file) return
     setUploading(true)
 
-    const { error } = await supabase.storage
-      .from('uploads')
-      .upload(file.name, file)
+    const fileName = `${Date.now()}-${file.name}`
+    const { data, error } = await supabase.storage
+      .from('uploads') // ganti sesuai nama bucket
+      .upload(fileName, file)
 
-    setUploading(false)
-
-    if (!error) {
-      alert('Upload berhasil!')
-      setFile(null)
-    } else {
+    if (error) {
       alert('Upload gagal: ' + error.message)
+      setUploading(false)
+      return
     }
+
+    const { data: publicUrl } = supabase.storage.from('files').getPublicUrl(fileName)
+    setUrl(publicUrl.publicUrl)
+    setUploading(false)
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-pink-50 px-4">
-      <div className="bg-white rounded-xl shadow-xl max-w-lg w-full p-6">
-        <h1 className="text-xl font-semibold mb-4">Upload shot</h1>
+    <div className="flex min-h-screen items-center justify-center bg-pink-50 px-4">
+      <div className="bg-white shadow-lg rounded-2xl p-8 max-w-xl w-full text-center">
+        <h2 className="text-xl font-semibold mb-4 text-gray-700">Upload File</h2>
 
-        <div className="flex space-x-4 mb-6 text-pink-500">
-          <div className="text-center text-sm">
-            <p>🖼️<br />Images<br /><span className="text-xs">PNG, JPG, GIF</span></p>
-          </div>
-          <div className="text-center text-sm">
-            <p>🎞️<br />GIFs<br /><span className="text-xs">800x600</span></p>
-          </div>
-          <div className="text-center text-sm">
-            <p>🎥<br />Videos<br /><span className="text-xs">MP4, 4:3</span></p>
-          </div>
-        </div>
-
-        <div
-          onDragOver={(e) => {
-            e.preventDefault()
-            setDragging(true)
-          }}
-          onDragLeave={() => setDragging(false)}
-          onDrop={handleDrop}
-          className={`border-2 ${
-            dragging ? 'border-pink-500' : 'border-pink-300'
-          } border-dashed rounded-lg flex flex-col items-center justify-center p-10 text-center transition-all mb-4`}
-        >
-          <CloudUpload className="w-12 h-12 text-pink-400 mb-2" />
-          <p className="font-medium">Drag & drop to upload</p>
-          <p className="text-sm text-pink-500">or <label htmlFor="file" className="cursor-pointer underline">browse</label></p>
-          <input
-            id="file"
-            type="file"
-            className="hidden"
-            onChange={handleFileChange}
-          />
-          {file && <p className="mt-2 text-sm text-gray-600">{file.name}</p>}
+        <div className="border-2 border-dashed border-pink-300 p-6 rounded-lg mb-4">
+          <UploadCloud className="mx-auto mb-2 text-pink-400" size={48} />
+          <p className="text-sm text-gray-500 mb-1">Drag & drop untuk upload</p>
+          <label className="text-pink-500 font-medium cursor-pointer">
+            atau pilih file
+            <input
+              type="file"
+              hidden
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
+            />
+          </label>
         </div>
 
         <button
-          disabled={!file || uploading}
           onClick={handleUpload}
-          className="w-full bg-pink-400 hover:bg-pink-500 text-white py-2 rounded-lg font-semibold transition-all disabled:opacity-50"
+          disabled={uploading || !file}
+          className="mt-2 bg-pink-400 hover:bg-pink-500 text-white px-6 py-2 rounded-full disabled:opacity-50"
         >
-          {uploading ? 'Uploading...' : 'Upload'}
+          {uploading ? 'Mengunggah...' : 'Upload'}
         </button>
 
-        <p className="text-xs text-center text-gray-500 mt-4">
-          48 uploads remaining this month. Please read our <a href="#" className="text-pink-500 underline">Community Guidelines</a> before uploading.
-        </p>
+        {url && (
+          <div className="mt-4 text-sm text-gray-700">
+            ✅ Berhasil diupload! <br />
+            <a href={url} className="text-pink-600 underline break-all" target="_blank">
+              {url}
+            </a>
+          </div>
+        )}
       </div>
     </div>
   )
