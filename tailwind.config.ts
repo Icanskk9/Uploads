@@ -1,13 +1,18 @@
-/** @type {import('tailwindcss').Config} */
-export default {
+// tailwind.config.ts
+import type { Config } from 'tailwindcss'
+
+const config: Config = {
   content: [
-    "./app/**/*.{js,ts,jsx,tsx}", // ✅ App Router
-    "./pages/**/*.{js,ts,jsx,tsx}", // (opsional)
-    "./components/**/*.{js,ts,jsx,tsx}",
-    "./styles/**/*.{css}" // jika CSS di /styles
+    './app/**/*.{js,ts,jsx,tsx}',
+    './components/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
-    extend: {}
+    extend: {
+      colors: {
+        primary: '#f472b6', // pink-400
+        secondary: '#fce7f3', // pink-100
+      },
+    },
   },
-  plugins: []
-};
+  plugins: [],
+}
