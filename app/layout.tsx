@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Upload File - Modern',
-  description: 'Upload file kamu dan dapatkan link download-nya!',
+  description: 'Upload file tugas',
 }
 
 export default function RootLayout({
