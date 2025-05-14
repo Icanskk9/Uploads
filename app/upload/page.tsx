@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
-import { UploadCloud, ImageIcon, File } from 'lucide-react'
+import { UploadCloud, File } from 'lucide-react'
 import { useDropzone } from 'react-dropzone'
 
 const supabase = createBrowserClient(
@@ -63,10 +63,10 @@ export default function UploadPage() {
           <p className="text-pink-500 font-semibold cursor-pointer">atau klik untuk pilih file</p>
         </div>
 
-        {preview && (
+        {preview && file && (
           <div className="mt-4">
             <p className="text-gray-700 font-medium mb-1">Preview:</p>
-            {file?.type.startsWith('image') ? (
+            {file.type.startsWith('image') ? (
               <img
                 src={preview}
                 alt="preview"
