@@ -1,19 +1,13 @@
-// tailwind.config.ts
-import type { Config } from 'tailwindcss'
-
-const config: Config = {
+/** @type {import('tailwindcss').Config} */
+export default {
   content: [
-    './app/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
+    "./app/**/*.{js,ts,jsx,tsx}", // ✅ App Router
+    "./pages/**/*.{js,ts,jsx,tsx}", // (opsional)
+    "./components/**/*.{js,ts,jsx,tsx}",
+    "./styles/**/*.{css}" // jika CSS di /styles
   ],
   theme: {
-    extend: {
-      fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-      },
-    },
+    extend: {}
   },
-  plugins: [],
-}
-
-export default config
+  plugins: []
+};
