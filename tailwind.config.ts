@@ -1,4 +1,3 @@
-// tailwind.config.ts
 import type { Config } from 'tailwindcss'
 
 const config: Config = {
@@ -9,8 +8,8 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: '#f472b6', // pink-400
-        secondary: '#fce7f3', // pink-100
+        primary: '#f472b6', 
+        secondary: '#fce7f3', 
       },
     },
   },
