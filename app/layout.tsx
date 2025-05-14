@@ -3,7 +3,7 @@ export const metadata = {
   description: 'Situs unggah file Tugas',
 };
 
-export default function RootLayout({ childsren }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>{children}</body>
