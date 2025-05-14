@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
-import { UploadCloud, ImageIcon, File } from 'lucide-react'
+import { UploadCloud, File as FileIcon } from 'lucide-react'
 import { useDropzone } from 'react-dropzone'
 
 const supabase = createBrowserClient(
@@ -15,11 +15,14 @@ export default function UploadPage() {
   const [preview, setPreview] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [url, setUrl] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const selectedFile = acceptedFiles[0]
     setFile(selectedFile)
     setPreview(URL.createObjectURL(selectedFile))
+    setUrl(null)
+    setError(null)
   }, [])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -30,17 +33,21 @@ export default function UploadPage() {
   const handleUpload = async () => {
     if (!file) return
     setUploading(true)
+    setError(null)
     const fileName = `${Date.now()}-${file.name}`
 
-    const { error } = await supabase.storage.from('files').upload(fileName, file)
-    if (error) {
-      alert('Upload gagal: ' + error.message)
+    const { error: uploadError } = await supabase.storage
+      .from('uploads')
+      .upload(fileName, file)
+
+    if (uploadError) {
+      setError(`Upload gagal: ${uploadError.message}`)
       setUploading(false)
       return
     }
 
-    const { data: publicUrl } = supabase.storage.from('files').getPublicUrl(fileName)
-    setUrl(publicUrl.publicUrl)
+    const { data: publicUrl } = supabase.storage.from('uploads').getPublicUrl(fileName)
+    setUrl(publicUrl?.publicUrl ?? null)
     setUploading(false)
   }
 
@@ -51,7 +58,7 @@ export default function UploadPage() {
 
         <div
           {...getRootProps()}
-          className={`border-2 border-dashed rounded-xl p-6 transition-all ${
+          className={`border-2 border-dashed rounded-xl p-6 transition-all cursor-pointer ${
             isDragActive ? 'border-pink-500 bg-pink-100' : 'border-pink-300 bg-white'
           }`}
         >
@@ -60,13 +67,13 @@ export default function UploadPage() {
           <p className="text-sm text-gray-600 mb-1">
             {isDragActive ? 'Lepaskan file untuk mengunggah' : 'Drag & drop file di sini'}
           </p>
-          <p className="text-pink-500 font-semibold cursor-pointer">atau klik untuk pilih file</p>
+          <p className="text-pink-500 font-semibold">atau klik untuk pilih file</p>
         </div>
 
-        {preview && (
+        {preview && file && (
           <div className="mt-4">
             <p className="text-gray-700 font-medium mb-1">Preview:</p>
-            {file?.type.startsWith('image') ? (
+            {file.type.startsWith('image') ? (
               <img
                 src={preview}
                 alt="preview"
@@ -74,7 +81,7 @@ export default function UploadPage() {
               />
             ) : (
               <div className="flex flex-col items-center text-gray-500">
-                <File size={48} />
+                <FileIcon size={48} />
                 <p className="mt-2 text-sm">{file.name}</p>
               </div>
             )}
@@ -84,7 +91,7 @@ export default function UploadPage() {
         <button
           onClick={handleUpload}
           disabled={uploading || !file}
-          className="mt-6 bg-pink-400 hover:bg-pink-500 text-white px-6 py-2 rounded-full transition disabled:opacity-50"
+          className="mt-6 bg-pink-400 hover:bg-pink-500 text-white px-6 py-2 rounded-full transition disabled:opacity-50 w-full"
         >
           {uploading ? 'Mengunggah...' : 'Upload'}
         </button>
@@ -100,6 +107,12 @@ export default function UploadPage() {
             >
               {url}
             </a>
+          </div>
+        )}
+
+        {error && (
+          <div className="mt-4 text-sm text-red-600">
+            ❌ {error}
           </div>
         )}
       </div>
