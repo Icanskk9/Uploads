@@ -2,13 +2,11 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { motion } from 'framer-motion'
-import { UploadCloud, FileText } from 'lucide-react'
+import { UploadCloud, Folder } from 'lucide-react'
 
 export default function UploadPage() {
   const [files, setFiles] = useState<FileList | null>(null)
   const [uploadedFiles, setUploadedFiles] = useState<any[]>([])
-  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     fetchFiles()
@@ -25,67 +23,58 @@ export default function UploadPage() {
 
   async function handleUpload() {
     if (!files) return
-    setLoading(true)
     const file = files[0]
-    const { error } = await supabase.storage.from('uploads').upload(file.name, file, {
+    const { data, error } = await supabase.storage.from('uploads').upload(file.name, file, {
       cacheControl: '3600',
       upsert: false,
     })
-    setLoading(false)
     if (!error) {
-      alert('✅ Upload berhasil!')
+      alert('Upload berhasil!')
       fetchFiles()
     } else {
-      alert('❌ Upload gagal: ' + error.message)
+      alert('Upload gagal: ' + error.message)
     }
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white flex flex-col items-center p-6">
-      <motion.div
-        className="max-w-xl w-full text-center"
-        initial={{ opacity: 0, y: -30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
-      >
-        <h1 className="text-4xl font-bold mb-2">📂 Upload File</h1>
-        <p className="text-gray-400 mb-6">Unggah file kamu dan dapatkan link download-nya!</p>
-        <div className="bg-gray-800 p-6 rounded-2xl shadow-lg">
+    <main className="min-h-screen bg-gradient-to-br from-blue-100 via-white to-blue-200 flex flex-col items-center justify-center p-6">
+      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-3xl">
+        <h1 className="text-3xl font-bold text-gray-800 flex items-center mb-2">
+          <Folder className="mr-2 text-yellow-500" /> Upload File
+        </h1>
+        <p className="text-gray-600 mb-6">Unggah file kamu dan dapatkan link download-nya!</p>
+
+        <div className="flex items-center space-x-4 mb-6">
           <input
             type="file"
             onChange={(e) => setFiles(e.target.files)}
-            className="mb-4 w-full text-sm text-gray-300 file:bg-blue-600 file:text-white file:px-4 file:py-2 file:rounded file:border-none"
+            className="flex-grow border rounded px-4 py-2 text-sm"
           />
           <button
             onClick={handleUpload}
-            disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 transition px-4 py-2 rounded font-semibold disabled:opacity-50 flex items-center justify-center gap-2"
+            className="bg-blue-600 hover:bg-blue-700 text-white flex items-center px-4 py-2 rounded shadow"
           >
-            <UploadCloud size={20} />
-            {loading ? 'Uploading...' : 'Upload'}
+            <UploadCloud className="w-5 h-5 mr-2" />
+            Upload
           </button>
         </div>
-      </motion.div>
 
-      <motion.div
-        className="w-full max-w-2xl mt-10"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-      >
-        <h2 className="text-2xl font-semibold mb-4 border-b border-gray-700 pb-2">📁 File Terupload</h2>
+        <h2 className="text-xl font-semibold flex items-center text-gray-700 mb-3">
+          <Folder className="mr-2 text-green-500" />
+          File Terupload
+        </h2>
+
         {uploadedFiles.length === 0 ? (
           <p className="text-gray-500 italic">Belum ada file diunggah.</p>
         ) : (
-          <ul className="space-y-3">
+          <ul className="space-y-2">
             {uploadedFiles.map((file) => (
-              <li key={file.name} className="bg-gray-800 p-3 rounded-lg flex items-center gap-3">
-                <FileText size={20} className="text-blue-400" />
+              <li key={file.name} className="bg-gray-100 p-3 rounded shadow hover:bg-gray-200">
                 <a
                   href={`https://eizticltmueldtlzrjsk.supabase.co/storage/v1/object/public/uploads/${file.name}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-400 hover:underline break-all"
+                  className="text-blue-600 hover:underline"
                 >
                   {file.name}
                 </a>
@@ -93,7 +82,7 @@ export default function UploadPage() {
             ))}
           </ul>
         )}
-      </motion.div>
+      </div>
     </main>
   )
 }
