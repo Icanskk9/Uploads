@@ -24,7 +24,7 @@ export default function UploadPage() {
     setUrl(null)
     setError(null)
   }, [])
-
+s
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     multiple: false,
