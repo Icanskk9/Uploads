@@ -15,9 +15,7 @@ export default function DownloadPage() {
       const { data } = supabase
         .storage
         .from('uploads') 
-        .getPublicUrl('materidownload.pdf')
-        .getPublicUrl('materidownload1.pdf')
-        .getPublicUrl('materidownload2.pdf') 
+        .getPublicUrl('materidownload.pdf') 
       setPublicUrl(data?.publicUrl || null)
     }
 
