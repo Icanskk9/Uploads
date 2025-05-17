@@ -14,8 +14,8 @@ type FileItem = {
 }
 
 const fileList: { name: string; path: string }[] = [
-  { name: 'ROUTING BGP', path: 'materidownload.pdf' },
-  { name: 'MATERI TCP/IP', path: 'picture1.jpg' },
+  { name: 'MateriRouting OSPF', path: 'materidownload.pdf' },
+  { name: 'Logo SMK', path: 'picture1.jpg' },
   { name: 'TOPOLOGI JARINGAN', path: 'TOPOLOGI.pdf' },
 ]
 
@@ -27,7 +27,7 @@ export default function DownloadPage() {
       const fetchedFiles: FileItem[] = fileList.map((file) => {
         const { data } = supabase
           .storage
-          .from('files') // ganti dengan nama bucket kamu
+          .from('uploads')
           .getPublicUrl(file.path)
 
         return {
