@@ -17,7 +17,7 @@ export default function DownloadPage() {
         .from('uploads') 
         .getPublicUrl('materidownload.pdf')
         .getPublicUrl('materidownload1.pdf')
-        .getPublicUrl('materidownload.pdf') 
+        .getPublicUrl('materidownload2.pdf') 
       setPublicUrl(data?.publicUrl || null)
     }
 
