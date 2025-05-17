@@ -12,7 +12,7 @@ export default function DownloadPage() {
       const { data, error } = await supabase
         .storage
         .from('files')
-        .getPublicUrl('ROUTINGBGP.pdf') 
+        .getPublicUrl('materidownload.pdf') 
 
       if (error) {
         console.error('Error fetching download URL:', error)
