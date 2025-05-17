@@ -3,71 +3,39 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 
-type FileItem = {
-  name: string
-  path: string
-  publicUrl: string | null
-}
-
-const fileList: { name: string; path: string }[] = [
-  { name: 'MateriRouting OSPF', path: 'materidownload.pdf' },
-  { name: 'Logo SMK', path: 'picture1.jpg' },
-  { name: 'Materi DJK', path: 'materidownload1.pdf' },
-]
+const files = ['materidownload.pdf', 'materidownload1.pdf', 'picture1.jpg']
 
 export default function DownloadPage() {
-  const [files, setFiles] = useState<FileItem[]>([])
+  const [urls, setUrls] = useState<{ name: string, url: string }[]>([])
 
   useEffect(() => {
     const fetchUrls = async () => {
-      const fetchedFiles: FileItem[] = fileList.map((file) => {
-        const { data } = supabase
-          .storage
-          .from('uploads')
-          .getPublicUrl(file.path)
-
-        return {
-          name: file.name,
-          path: file.path,
-          publicUrl: data?.publicUrl || null,
-        }
+      const links = files.map(file => {
+        const { data } = supabase.storage.from('uploads').getPublicUrl(file)
+        return { name: file, url: data.publicUrl }
       })
-      setFiles(fetchedFiles)
+      setUrls(links)
     }
-
     fetchUrls()
   }, [])
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-pink-100 to-white flex flex-col items-center justify-center p-6">
-      <h1 className="text-4xl font-bold text-pink-600 mb-6">Unduh Materi</h1>
-      <p className="text-gray-600 mb-8 text-center">Silakan pilih file yang ingin diunduh:</p>
-
-      <div className="grid gap-4 w-full max-w-md">
-        {files.map((file) => (
-          <div
-            key={file.path}
-            className="bg-white shadow-md rounded-xl p-4 flex justify-between items-center border border-pink-200"
-          >
-            <span className="text-gray-800">{file.name}</span>
-            {file.publicUrl ? (
-              <a
-                href={file.publicUrl}
-                download
-                className="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg text-sm"
-              >
-                Download
-              </a>
-            ) : (
-              <span className="text-gray-400 text-sm">Memuat...</span>
-            )}
-          </div>
+    <div className="min-h-screen bg-secondary p-10 text-center">
+      <h1 className="text-3xl font-bold text-primary mb-6">Download Files</h1>
+      <ul className="space-y-4">
+        {urls.map(({ name, url }) => (
+          <li key={name}>
+            <a href={url} download className="text-white bg-primary hover:bg-pink-600 px-6 py-3 rounded-xl inline-block shadow">
+              Download {name}
+            </a>
+          </li>
         ))}
-      </div>
-    </main>
+      </ul>
+    </div>
   )
 }
