@@ -1,46 +1,44 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export default function DownloadPage() {
-  const [downloadUrl, setDownloadUrl] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [publicUrl, setPublicUrl] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchUrl = async () => {
-      const { data, error } = await supabase
+      const { data } = supabase
         .storage
-        .from('files')
+        .from('uploads') 
         .getPublicUrl('materidownload.pdf') 
-
-      if (error) {
-        console.error('Error fetching download URL:', error)
-      } else {
-        setDownloadUrl(data.publicUrl)
-      }
-      setLoading(false)
+      setPublicUrl(data?.publicUrl || null)
     }
 
     fetchUrl()
   }, [])
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-8">
-      <h1 className="text-3xl font-bold mb-6">Download File</h1>
-      {loading ? (
-        <p>Loading...</p>
-      ) : downloadUrl ? (
+    <main className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-pink-100 to-white text-center p-6">
+      <h1 className="text-4xl font-bold text-pink-600 mb-4">Download File</h1>
+      <p className="text-gray-700 mb-8">
+        Klik tombol di bawah untuk mengunduh file .
+      </p>
+
+      {publicUrl ? (
         <a
-          href={downloadUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="px-6 py-3 bg-pink-500 text-white rounded-md hover:bg-pink-600 transition"
+          href={publicUrl}
+          download
+          className="px-6 py-3 bg-pink-500 hover:bg-pink-600 text-white font-semibold rounded-xl transition"
         >
-          Download Now
+          Download pdf
         </a>
       ) : (
-        <p>File not found.</p>
+        <p className="text-sm text-gray-500">Memuat URL file...</p>
       )}
     </main>
   )
